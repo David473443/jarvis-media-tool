@@ -21,8 +21,8 @@ button:disabled{opacity:.5;cursor:not-allowed}
 </style></head>
 <body><div class="wrap">
 <h1>J.A.R.V.I.S Media Generator</h1>
-<p class="sub">Images: free, no key. Video: free key from platform.minimax.io</p>
-<div class="tabs"><div class="tab on" id="t-img" onclick="sel('img')">Image</div><div class="tab" id="t-vid" onclick="sel('vid')">Video</div></div>
+<p class="sub">Images + Voice: free. Video: free fal.ai or MiniMax key.</p>
+<div class="tabs"><div class="tab on" id="t-img" onclick="sel('img')">Image</div><div class="tab" id="t-vid" onclick="sel('vid')">Video</div><div class="tab" id="t-voice" onclick="sel('voice')">Voice</div></div>
 
 <div class="box" id="img-box">
 <label>Prompt</label><textarea id="ip" rows="3">a luxury hotel at night, cinematic, warm lights</textarea>
@@ -34,13 +34,21 @@ button:disabled{opacity:.5;cursor:not-allowed}
 <div class="box" id="vid-box" style="display:none">
 <label>Prompt</label><textarea id="vp" rows="3">a spinning globe with glowing city lights, sci-fi</textarea>
 <label>Duration (sec)</label><input id="vd" value="5"/>
-<button onclick="genVideo()">Generate Video (needs MiniMax key)</button>
+<button onclick="genVideo()">Generate Video (needs fal.ai or MiniMax key)</button>
 <div class="result" id="vid-res"></div>
-<p class="note">Set MINIMAX_API_KEY in .env (free key from platform.minimax.io).</p>
+<p class="note">Set FAL_KEY (fal.ai free) or MINIMAX_API_KEY (funded) in .env.</p>
+</div>
+
+<div class="box" id="voice-box" style="display:none">
+<label>Text to speak</label><textarea id="vt" rows="3">Hello, J.A.R.V.I.S online. How can I help you today?</textarea>
+<button onclick="genVoice()">Generate Voice (EasyVoice free)</button>
+<div class="result" id="voice-res"></div>
+<p class="note">Free via EasyVoice (EASYVOICE_API_KEY). MiniMax used if funded.</p>
 </div>
 </div>
 <script>
-function sel(t){document.getElementById('t-img').classList.toggle('on',t==='img');document.getElementById('t-vid').classList.toggle('on',t==='vid');document.getElementById('img-box').style.display=t==='img'?'block':'none';document.getElementById('vid-box').style.display=t==='vid'?'block':'none';}
+function sel(t){document.getElementById('t-img').classList.toggle('on',t==='img');document.getElementById('t-vid').classList.toggle('on',t==='vid');document.getElementById('t-voice').classList.toggle('on',t==='voice');document.getElementById('img-box').style.display=t==='img'?'block':'none';document.getElementById('vid-box').style.display=t==='vid'?'block':'none';document.getElementById('voice-box').style.display=t==='voice'?'block':'none';}
 async function genImage(){const b=document.getElementById('img-res');b.innerHTML='Generating…';const r=await fetch('/api/image',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt:document.getElementById('ip').value,width:+document.getElementById('iw').value,height:+document.getElementById('ih').value})});const j=await r.json();b.innerHTML=j.ok?`<img src="${j.url}"/>`:'Error: '+j.error;}
 async function genVideo(){const b=document.getElementById('vid-res');b.innerHTML='Queued… (video takes minutes)';const r=await fetch('/api/video',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt:document.getElementById('vp').value,duration:+document.getElementById('vd').value})});const j=await r.json();b.innerHTML=j.ok?`<video src="${j.url}" controls></video>`:'Error: '+j.error;}
+async function genVoice(){const b=document.getElementById('voice-res');b.innerHTML='Generating…';const r=await fetch('/api/voice',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text:document.getElementById('vt').value})});const j=await r.json();b.innerHTML=j.ok?`<audio src="${j.url}" controls></audio>`:'Error: '+j.error;}
 </script></body></html>
