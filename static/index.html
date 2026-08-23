@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>J.A.R.V.I.S Media Generator</title>
+<style>
+:root{--bg:#06070a;--fg:#eef1f6;--mut:#9aa3b2;--ac:#5eead4;--ac2:#818cf8;--card:#0e1118;--bd:#1c2230}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.5 system-ui,sans-serif}
+.wrap{max-width:760px;margin:0 auto;padding:24px}
+h1{font-size:26px;margin:0 0 4px;background:linear-gradient(90deg,var(--ac),var(--ac2));-webkit-background-clip:text;background-clip:text;color:transparent;font-weight:800}
+p.sub{color:var(--mut);margin:0 0 20px}
+.box{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:16px;margin-bottom:16px}
+label{display:block;color:var(--mut);font-size:13px;margin:10px 0 4px}
+textarea,input,select{width:100%;background:#0a0d14;border:1px solid var(--bd);border-radius:10px;color:var(--fg);padding:10px;font:inherit}
+button{margin-top:12px;background:var(--ac);color:#04140f;border:0;border-radius:999px;padding:11px 20px;font-weight:700;cursor:pointer}
+button:disabled{opacity:.5;cursor:not-allowed}
+.tabs{display:flex;gap:8px;margin-bottom:12px}
+.tab{padding:8px 16px;border:1px solid var(--bd);border-radius:999px;cursor:pointer;color:var(--mut)}
+.tab.on{background:var(--ac);color:#04140f;border-color:var(--ac)}
+.result{margin-top:14px}
+.result img,.result video{max-width:100%;border-radius:10px;border:1px solid var(--bd)}
+.note{font-size:12px;color:var(--mut)}
+</style></head>
+<body><div class="wrap">
+<h1>J.A.R.V.I.S Media Generator</h1>
+<p class="sub">Images: free, no key. Video: free key from platform.minimax.io</p>
+<div class="tabs"><div class="tab on" id="t-img" onclick="sel('img')">Image</div><div class="tab" id="t-vid" onclick="sel('vid')">Video</div></div>
+
+<div class="box" id="img-box">
+<label>Prompt</label><textarea id="ip" rows="3">a luxury hotel at night, cinematic, warm lights</textarea>
+<div style="display:flex;gap:10px"><div style="flex:1"><label>Width</label><input id="iw" value="768"/></div><div style="flex:1"><label>Height</label><input id="ih" value="512"/></div></div>
+<button onclick="genImage()">Generate Image (free)</button>
+<div class="result" id="img-res"></div>
+</div>
+
+<div class="box" id="vid-box" style="display:none">
+<label>Prompt</label><textarea id="vp" rows="3">a spinning globe with glowing city lights, sci-fi</textarea>
+<label>Duration (sec)</label><input id="vd" value="5"/>
+<button onclick="genVideo()">Generate Video (needs MiniMax key)</button>
+<div class="result" id="vid-res"></div>
+<p class="note">Set MINIMAX_API_KEY in .env (free key from platform.minimax.io).</p>
+</div>
+</div>
+<script>
+function sel(t){document.getElementById('t-img').classList.toggle('on',t==='img');document.getElementById('t-vid').classList.toggle('on',t==='vid');document.getElementById('img-box').style.display=t==='img'?'block':'none';document.getElementById('vid-box').style.display=t==='vid'?'block':'none';}
+async function genImage(){const b=document.getElementById('img-res');b.innerHTML='Generating…';const r=await fetch('/api/image',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt:document.getElementById('ip').value,width:+document.getElementById('iw').value,height:+document.getElementById('ih').value})});const j=await r.json();b.innerHTML=j.ok?`<img src="${j.url}"/>`:'Error: '+j.error;}
+async function genVideo(){const b=document.getElementById('vid-res');b.innerHTML='Queued… (video takes minutes)';const r=await fetch('/api/video',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt:document.getElementById('vp').value,duration:+document.getElementById('vd').value})});const j=await r.json();b.innerHTML=j.ok?`<video src="${j.url}" controls></video>`:'Error: '+j.error;}
+</script></body></html>
