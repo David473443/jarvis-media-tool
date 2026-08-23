@@ -19,8 +19,12 @@ def gen_image():
     h = int(data.get("height", 512))
     safe = requests.utils.quote(prompt)
     url = f"https://image.pollinations.ai/prompt/{safe}?width={w}&height={h}&nologo=true&model=flux"
+    headers = {}
+    key = os.getenv("POLLINATIONS_API_KEY")
+    if key:
+        headers["Authorization"] = f"Bearer {key}"
     try:
-        r = requests.get(url, timeout=90)
+        r = requests.get(url, headers=headers, timeout=90)
         if r.status_code == 200 and r.content[:4] in (b"\xff\xd8\xff\xe0", b"\xff\xd8\xff\xe1", b"\x89PNG"):
             path = f"static/img_{uuid.uuid4().hex}.jpg"
             with open(path, "wb") as f:
